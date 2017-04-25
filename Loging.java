@@ -1,7 +1,11 @@
-package Table;
 
 import java.awt.Point;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
+import javax.imageio.IIOException;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -22,7 +26,7 @@ public class Loging extends JFrame {
 
 	public Loging() {
 		this.setSize(400, 500);
-		this.setLayout(null);
+		getContentPane().setLayout(null);
 		this.setLocation(new Point(600, 200));
 
 		User = new JLabel("User:");
@@ -39,12 +43,12 @@ public class Loging extends JFrame {
 		pin = new JTextField();
 		pin.setBounds(140, 150, 120, 30);
 
-		this.add(User);
-		this.add(PIN);
-		this.add(Enter);
-		this.add(Cancel);
-		this.add(name);
-		this.add(pin);
+		getContentPane().add(User);
+		getContentPane().add(PIN);
+		getContentPane().add(Enter);
+		getContentPane().add(Cancel);
+		getContentPane().add(name);
+		getContentPane().add(pin);
 
 		listenerForLoging myaction = new listenerForLoging(this);
 		Enter.addActionListener(myaction);
@@ -52,6 +56,29 @@ public class Loging extends JFrame {
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
+
+		try {
+			Userinformation(name, pin);
+		} catch (IIOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
+	public void Userinformation(JTextField name, JTextField pin) throws IIOException {
+		try {
+			File file = new File("data/test.txt");
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			FileWriter fw = new FileWriter(file.getAbsoluteFile());
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write(name.getText());
+			bw.write(pin.getText());
+			bw.close();
+			System.out.println("File Done");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }
