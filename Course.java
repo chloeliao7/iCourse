@@ -1,6 +1,7 @@
 package version1;
 
 public class Course extends Object{
+	/*define some parameters*/
 	private int row;
 	private int column;
 	String content;
@@ -9,7 +10,6 @@ public class Course extends Object{
 	private String note;
 	private String lecturer;
 	
-
 	public Course(int row, int column, String content) {
 		this.row=row;
 		this.column=column;
@@ -19,6 +19,7 @@ public class Course extends Object{
 	public int getColumn() {
 		return column;
 	}
+	/*Set or change the text in the editor*/
 	public void setContent(String content){
 		this.content=content;
 	}

@@ -20,53 +20,75 @@ import javax.swing.JTextField;
 public class ServerSocketFrame extends JFrame {
 	private JTextField tf_send;
 	private JTextArea ta_info;
-	private ServerSocket server; // 声明ServerSocket对象
-	private Socket socket; // 声明Socket对象socket
-	private Vector<Socket> vector = new Vector<Socket>();// 用于存储连接到服务器的客户端套接字对象
-	private int counts = 0;// 用于记录连接的客户人数
+	private ServerSocket server; 
+	   // Declare ServerSocket object
+	private Socket socket; 
+	   // declare the object of Socket socket
+	private Vector<Socket> vector = new Vector<Socket>();
+	   // Used to store client socket objects attached to the server
+	private int counts = 0;
+	   //Number of clients used to record connections
 
 	public void getServer() {
 		try {
-			server = new ServerSocket(1978); // 实例化Socket对象
-			ta_info.append("服务器套接字已经创建成功\n"); // 输出信息
-			while (true) { // 如果套接字是连接状态
-				socket = server.accept(); // 实例化Socket对象
+			server = new ServerSocket(1978);
+			   // Instantiate Socket objects
+			ta_info.append("服务器套接字已经创建成功\n"); 
+			   // Output information
+			while (true) { 
+				   // If the socket is connected
+				socket = server.accept(); 
+				   // Instantiate Socket objects
 				counts++;
-				ta_info.append("第" + counts + "个客户连接成功\n"); // 输出信息
+				ta_info.append("第" + counts + "个客户连接成功\n");
+				   // Output information
 				PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-				out.println(String.valueOf(counts - 1));// 向客户端发送套接字索引
-				vector.add(socket);// 存储客户端套接字对象
-				new ServerThread(socket).start();// 创建并启动线程序
+				out.println(String.valueOf(counts - 1));
+				   // Send socket index to client
+				vector.add(socket);
+				   // Storage client socket object
+				new ServerThread(socket).start();
+				   // Create and start the Thread program
 			}
 		} catch (Exception e) {
-			e.printStackTrace(); // 输出异常信息
+			e.printStackTrace(); 
+			   //Output exception information
 		}
 	}
 
 	class ServerThread extends Thread {
-		Socket socket = null; // 创建Socket对象
-		BufferedReader reader; // 声明BufferedReader对象
+		Socket socket = null;
+		   // Create Socket object
+		BufferedReader reader; 
+		   // declare BufferedReader object
 
-		public ServerThread(Socket socket) { // 构造方法
+		public ServerThread(Socket socket) { 
+			   // Construction method
 			this.socket = socket;
 		}
 
 		public void run() {
 			try {
 				if (socket != null) {
-					reader = new BufferedReader(new InputStreamReader(socket.getInputStream())); // 实例化BufferedReader对象
-					int index = -1;// 存储退出的客户端索引值
+					reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+					   // Instantiate BufferedReader objects
+					int index = -1;
+					   // Store index value of exit clients
 					try {
-						while (true) { // 如果套接字是连接状态
-							String line = reader.readLine();// 读取客户端信息
+						while (true) { 
+							   // If the socket is connected
+							String line = reader.readLine();
+							   // Read client information
 							try {
-								index = Integer.parseInt(line);// 获得退出的客户端索引值
+								index = Integer.parseInt(line);
+								   // Gets the index value of the client
 							} catch (Exception ex) {
 								index = -1;
 							}
 							if (line != null) {
+								  /*Get client information*/
 								if (line.startsWith("N"))
-									ta_info.append("user name is " + line.substring(1) + "\n"); // 获得客户端信息
+									ta_info.append("user name is " + line.substring(1) + "\n"); 
 								if (line.startsWith("P"))
 									ta_info.append("password is " + line.substring(1) + "\n");
 								if (line.startsWith("E"))
@@ -75,16 +97,20 @@ public class ServerSocketFrame extends JFrame {
 						}
 					} catch (Exception e) {
 						if (index != -1) {
-							vector.set(index, null);// 将退出的客户端套接字设置为null
-							ta_info.append("第" + (index + 1) + "个客户端已经退出。\n"); // 输出异常信息
+							vector.set(index, null);
+							   // Set the exit client socket to null
+							ta_info.append("第" + (index + 1) + "个客户端已经退出。\n"); 
+							   // Output exception information
 						}
 					} finally {
 						try {
 							if (reader != null) {
-								reader.close();// 关闭流
+								reader.close();
+								   // Close flow
 							}
 							if (socket != null) {
-								socket.close(); // 关闭套接字
+								socket.close(); 
+								   // close socket
 							}
 						} catch (IOException e) {
 							e.printStackTrace();
@@ -94,6 +120,7 @@ public class ServerSocketFrame extends JFrame {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			//show the exception
 		}
 
 	}
@@ -102,10 +129,14 @@ public class ServerSocketFrame extends JFrame {
 		writer.println(text);
 	}
 
-	public static void main(String[] args) { // 主方法
-		ServerSocketFrame frame = new ServerSocketFrame(); // 创建本类对象
-		frame.setVisible(true);// 显示窗体
-		frame.getServer(); // 调用方法
+	public static void main(String[] args) { 
+		   //Main method
+		ServerSocketFrame frame = new ServerSocketFrame(); 
+		   // Create class object
+		frame.setVisible(true);
+		   // Display Form
+		frame.getServer(); 
+		   // Calling method
 	}
 
 	public ServerSocketFrame() {
@@ -116,11 +147,13 @@ public class ServerSocketFrame extends JFrame {
 
 		final JScrollPane scrollPane = new JScrollPane();
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
-
+		   //add scroll bar
+  
 		ta_info = new JTextArea();
 		scrollPane.setViewportView(ta_info);
 
 		final JPanel panel = new JPanel();
+		   // global variable
 		getContentPane().add(panel, BorderLayout.SOUTH);
 
 		final JLabel label = new JLabel();
@@ -135,19 +168,24 @@ public class ServerSocketFrame extends JFrame {
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
 				for (int i = 0; i < vector.size(); i++) {
-					Socket socket = vector.get(i);// 获得连接成功的套接字对象
+					Socket socket = vector.get(i);
+					   //Socket socket for successful connection
 					PrintWriter writer;
 					try {
 						if (socket != null && !socket.isClosed()) {
-							writer = new PrintWriter(socket.getOutputStream(), true);// 创建输出流对象
-							writeInfo(writer, tf_send.getText()); // 将文本框中信息写入流
+							writer = new PrintWriter(socket.getOutputStream(), true);
+							   // Create output stream object
+							writeInfo(writer, tf_send.getText()); 
+							   // Writes a message in a text box to a stream
 						}
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
+					   //show the exception
 				}
 				ta_info.append("服务器发送的信息是：" + tf_send.getText() + "\n"); // 将文本框中信息显示在文本域中
-				tf_send.setText(""); // 将文本框清空
+				tf_send.setText("");
+				   // Empty text box
 			}
 		});
 		button.setText("发  送");
