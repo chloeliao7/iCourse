@@ -29,8 +29,11 @@ public class listenerForTable implements MouseListener, TableModelListener {
 	public void mouseClicked(MouseEvent e) {
 		// TODO Auto-generated method stub
 		if(e.getSource()==a.save){
+			
+			new window();
+			//when click the save button the window will qppear
+			
 			//传入服务器
-			System.out.println("save button correct");
 			//a.repaint();
 			//a.table.repaint();
 		}

@@ -35,30 +35,42 @@ public class Server {
 				System.out.println("Error : " + e);
 			}
 			String line;
-			// 由Socket对象得到输入流，并构造相应的BufferedReader对象
 			BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
-			// 由Socket对象得到输出流，并构造PrintWriter对象
+			   //The input stream is obtained by the Socket object, and the corresponding BufferedReader object is constructed
 			PrintWriter writer = new PrintWriter(s.getOutputStream());
-			// 由系统标准输入设备构造BufferedReader对象
+			   //The output stream is obtained by the Socket object and the PrintWriter object is constructed
 			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-			// 在标准输出上打印从客户端读入的字符串
+			   // Constructing BufferedReader objects from system standard input devices
 			System.out.println("Client:" + in.readLine());
+			   //Prints a string read from the client on the standard output
 
 			line = br.readLine();
+			   //Reads a string from the standard input
 			while (!line.equals("end")) {
+				   //If the string is "Bye", then the loop is stopped
 				writer.println(line);
+				   //output the string to the client
 				writer.flush();
+				   //Refresh the output stream so that Client receives the string immediately
 				System.out.println("Server:" + line);
+				   //Print read string on system standard output
 				System.out.println("Client:" + in.readLine());
+				   //Reads a string from the Client and prints it to the standard output
 				line = br.readLine();
+				   //Reads a string from the standard input of the system
 			}
 			writer.close();
+			   //Turn off the Socket output stream
 			in.close();
+			   //Close Socket input stream
 			in.close();
-			s.close(); // 关闭Socket
+			s.close(); 
+			   // close socket
 			ss.close();
+			   //close serversocket
 		} catch (Exception e) {
 			System.out.println("Error." + e);
+			   //printing error message
 		}
 	}
 }
