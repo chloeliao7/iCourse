@@ -1,10 +1,7 @@
-package table;
 
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,73 +14,51 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-import setting.account;
-import setting.users;
+public class SignClient extends JFrame {
 
-public class Sign extends JFrame {
-
-	  /*creat some JLabel*/
-	JLabel User; 
+	JLabel User;
 	JLabel PIN;
 	JLabel Ensure;
 	JLabel Email;
-	  /*creat some button*/
 	JButton Enter;
 	JButton Cancel;
-	  /*Create some string*/
 	JTextField name;
 	JTextField pin;
 	JTextField repin;
 	JTextField email;
-	private PrintWriter writer; 
-	   // declare PrintWriter class object
-	private BufferedReader reader; 
-	   // declare BufferedReader object
-	private Socket socket; 
-	   // declare Socket object
+	private PrintWriter writer;
+	private BufferedReader reader;
+	private Socket socket;
 
-	private void connect() { 
-		// Connection socket method
-
-		try { 
-			// Catch exception
-			socket = new Socket("localhost", 1978); 
-			   // Instantiate Socket objects
+	private void connect() {
+		try {
+			socket = new Socket("localhost", 1978);
 			while (true) {
 				writer = new PrintWriter(socket.getOutputStream(), true);
-				   // Create output stream object
-				reader = new BufferedReader(new InputStreamReader(socket.getInputStream())); 
-				   // Instantiate BufferedReader objects
-
+				reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				getServerInfo();
 			}
 		} catch (Exception e) {
-			e.printStackTrace(); 
-			   // Output exception information
+			e.printStackTrace();
 		}
 	}
 
 	private void getServerInfo() {
 		try {
-			while (true) { 
-				// If the socket is connected
+			while (true) {
 				if (reader != null) {
 					String line = reader.readLine();
-					   // Read the message sent by the server
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			   //Output exception information
 		} finally {
 			try {
 				if (reader != null) {
 					reader.close();
-					   // Close flow
 				}
 				if (socket != null) {
-					socket.close(); 
-					   // Close socket
+					socket.close();
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -92,16 +67,14 @@ public class Sign extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		new Sign();
+		new SignClient();
 	}
 
-	public Sign() {
+	public SignClient() {
 		this.setSize(400, 500);
 		this.setLayout(null);
-		//Set layout manager for this container
 		this.setLocation(new Point(600, 200));
-		
-		  /*creat some JLabel and set the size ,show the coordinate of the rectangle of each*/
+
 		User = new JLabel("User :");
 		User.setBounds(65, 100, 100, 30);
 		PIN = new JLabel("PIN :");
@@ -110,13 +83,11 @@ public class Sign extends JFrame {
 		Ensure.setBounds(65, 200, 100, 30);
 		Email = new JLabel("Email :");
 		Email.setBounds(65, 250, 100, 30);
-		  /*creat some JButton and set the size ,show the coordinate of the rectangle of each*/
 		Enter = new JButton("Enter");
 		Enter.setBounds(225, 350, 80, 30);
 		Cancel = new JButton("Cancel");
 		Cancel.setBounds(95, 350, 80, 30);
-		
-		  /*Create some string and set the size ,show the coordinate of the rectangle of each*/
+
 		name = new JTextField();
 		name.setBounds(150, 100, 120, 30);
 		pin = new JTextField();
@@ -126,7 +97,6 @@ public class Sign extends JFrame {
 		email = new JTextField();
 		email.setBounds(140, 250, 150, 30);
 
-		  /*add these things to the window*/
 		this.add(User);
 		this.add(PIN);
 		this.add(Ensure);
@@ -144,21 +114,17 @@ public class Sign extends JFrame {
 				System.out.println(repin.getText());
 				if (pin.getText().contentEquals(repin.getText())) {
 					writer.println("N" + name.getText());
+
 					writer.println("P" + pin.getText());
-					   // Writes a message in a text box to a stream
 					writer.println("E" + email.getText());
-					   //JOptionPane.showMessageDialog(null, "You created a new account!");
-					
-					account new_account = new account(name.getText(), pin.getText());
-					new_account.setEmail(email.getText());
-					users.accounts.add(new_account);
-					new CourseTable(users.accounts.indexOf(new_account));
+					// JOptionPane.showMessageDialog(null, "You created a new account!");
 				} else {
 					JOptionPane.showMessageDialog(null, "The pin doesn't fit.Please sign up again.");
 					// name.setText(" ");
 					// pin.setText(" ");
 					// repin.setText(" ");
 					// email.setText(" ");
+
 				}
 			}
 		});
@@ -171,13 +137,12 @@ public class Sign extends JFrame {
 					e1.printStackTrace();
 				}
 				dispose();
-			}	
+			}
 		});
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		 //When the user clicks a button ,close the window
 		this.setVisible(true);
-		//Enable visualization of the table
 		connect();
 	}
 }
+
