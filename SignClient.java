@@ -1,3 +1,4 @@
+package table;
 
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -14,7 +15,10 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-public class SignClient extends JFrame {
+import setting.account;
+import setting.users;
+
+public class Sign extends JFrame implements Runnable {
 
 	JLabel User;
 	JLabel PIN;
@@ -31,46 +35,25 @@ public class SignClient extends JFrame {
 	private Socket socket;
 
 	private void connect() {
+
 		try {
 			socket = new Socket("localhost", 1978);
 			while (true) {
-				writer = new PrintWriter(socket.getOutputStream(), true);
-				reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-				getServerInfo();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+				writer = new PrintWriter(socket.getOutputStream(), true);// 创建输出流对象
+				reader = new BufferedReader(new InputStreamReader(socket.getInputStream())); // 实例化BufferedReader对象
 
-	private void getServerInfo() {
-		try {
-			while (true) {
-				if (reader != null) {
-					String line = reader.readLine();
-				}
+				new Thread(this).start();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (reader != null) {
-					reader.close();
-				}
-				if (socket != null) {
-					socket.close();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			e.printStackTrace(); // 输出异常信息
 		}
 	}
 
 	public static void main(String[] args) {
-		new SignClient();
+		new Sign();
 	}
 
-	public SignClient() {
+	public Sign() {
 		this.setSize(400, 500);
 		this.setLayout(null);
 		this.setLocation(new Point(600, 200));
@@ -110,21 +93,16 @@ public class SignClient extends JFrame {
 
 		Enter.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
-				System.out.println(pin.getText());
-				System.out.println(repin.getText());
 				if (pin.getText().contentEquals(repin.getText())) {
 					writer.println("N" + name.getText());
-
 					writer.println("P" + pin.getText());
 					writer.println("E" + email.getText());
-					// JOptionPane.showMessageDialog(null, "You created a new account!");
 				} else {
 					JOptionPane.showMessageDialog(null, "The pin doesn't fit.Please sign up again.");
-					// name.setText(" ");
-					// pin.setText(" ");
-					// repin.setText(" ");
-					// email.setText(" ");
-
+					name.setText(" ");
+					pin.setText(" ");
+					repin.setText(" ");
+					email.setText(" ");
 				}
 			}
 		});
@@ -133,7 +111,6 @@ public class SignClient extends JFrame {
 				try {
 					socket.close();
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 				dispose();
@@ -144,5 +121,55 @@ public class SignClient extends JFrame {
 		this.setVisible(true);
 		connect();
 	}
+
+	boolean isrun = true;
+
+	@Override
+	public void run() {
+		try {
+			while (isrun) { // 如果套接字是连接状态
+				if (reader != null) {
+					String instruction = reader.readLine();
+					// 读取服务器发送的信息
+					if (instruction.matches("rename")) {
+						JOptionPane.showMessageDialog(null, "This name has exist,Please pick another name !");
+						name.setText(" ");
+						pin.setText(" ");
+						repin.setText(" ");
+						email.setText(" ");
+					}
+					if (instruction.matches("reemail")) {
+						JOptionPane.showMessageDialog(null, "This emailbox has been used !");
+						name.setText(" ");
+						pin.setText(" ");
+						repin.setText(" ");
+						email.setText(" ");
+					}
+					if (instruction.matches("success")) {
+						JOptionPane.showMessageDialog(null, "Congratuation! ");
+						account new_account = new account(name.getText(), pin.getText());
+						new_account.setEmail(email.getText());
+						users.accounts.add(new_account);
+						new CourseTable(users.accounts.indexOf(new_account));
+						isrun = false;
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (reader != null) {
+					reader.close();
+				}
+				if (socket != null) {
+					socket.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 }
+
 
