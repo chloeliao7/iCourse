@@ -6,12 +6,14 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
-import java.net.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Vector;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -20,113 +22,71 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import com.zzk.DAO;
-
 public class ServerSocketFrame extends JFrame {
 	private JTextField tf_send;
 	private JTextArea ta_info;
-	private PrintWriter writer; // ÉùÃ÷PrintWriterÀà¶ÔÏó
-	private ServerSocket server; // ÉùÃ÷ServerSocket¶ÔÏó
-	private Socket socket; // ÉùÃ÷Socket¶ÔÏósocket
-	private Vector<Socket> vector = new Vector<Socket>();// ÓÃÓÚ´æ´¢Á¬½Óµ½·şÎñÆ÷µÄ¿Í»§¶ËÌ×½Ó×Ö¶ÔÏó
-	private int counts = 0;// ÓÃÓÚ¼ÇÂ¼Á¬½ÓµÄ¿Í»§ÈËÊı
+	private ServerSocket server; // å£°æ˜ServerSocketå¯¹è±¡
+	private Socket socket; // å£°æ˜Socketå¯¹è±¡socket
+	private Vector<Socket> vector = new Vector<Socket>();// ç”¨äºå­˜å‚¨è¿æ¥åˆ°æœåŠ¡å™¨çš„å®¢æˆ·ç«¯å¥—æ¥å­—å¯¹è±¡
+	private int counts = 0;// ç”¨äºè®°å½•è¿æ¥çš„å®¢æˆ·äººæ•°
 
 	public void getServer() {
 		try {
-			server = new ServerSocket(1978); // ÊµÀı»¯Socket¶ÔÏó
-			ta_info.append("·şÎñÆ÷Ì×½Ó×ÖÒÑ¾­´´½¨³É¹¦\n"); // Êä³öĞÅÏ¢
-			while (true) { // Èç¹ûÌ×½Ó×ÖÊÇÁ¬½Ó×´Ì¬
-				socket = server.accept(); // ÊµÀı»¯Socket¶ÔÏó
+			server = new ServerSocket(1978); // å®ä¾‹åŒ–Socketå¯¹è±¡
+			ta_info.append("Connction Success\n"); // è¾“å‡ºä¿¡æ¯
+			while (true) {
+				socket = server.accept(); // å®ä¾‹åŒ–Socketå¯¹è±¡
 				counts++;
-				ta_info.append("µÚ" + counts + "¸ö¿Í»§Á¬½Ó³É¹¦\n"); // Êä³öĞÅÏ¢
+				ta_info.append("Client" + counts + "connected successed" + "\n"); // è¾“å‡ºä¿¡æ¯
 				PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-				out.println(String.valueOf(counts - 1));// Ïò¿Í»§¶Ë·¢ËÍÌ×½Ó×ÖË÷Òı
-				vector.add(socket);// ´æ´¢¿Í»§¶ËÌ×½Ó×Ö¶ÔÏó
-				new ServerThread(socket).start();// ´´½¨²¢Æô¶¯Ïß³ÌĞò
+				out.println(String.valueOf(counts - 1));// å‘å®¢æˆ·ç«¯å‘é€å¥—æ¥å­—ç´¢å¼•
+				vector.add(socket);// å­˜å‚¨å®¢æˆ·ç«¯å¥—æ¥å­—å¯¹è±¡
+				new ServerThread(socket).start();// åˆ›å»ºå¹¶å¯åŠ¨çº¿ç¨‹åº
 			}
 		} catch (Exception e) {
-			e.printStackTrace(); // Êä³öÒì³£ĞÅÏ¢
+			e.printStackTrace(); // è¾“å‡ºå¼‚å¸¸ä¿¡æ¯
 		}
 	}
 
 	class ServerThread extends Thread {
-		Socket socket = null; // ´´½¨Socket¶ÔÏó
-		BufferedReader reader; // ÉùÃ÷BufferedReader¶ÔÏó
+		Socket socket = null; // åˆ›å»ºSocketå¯¹è±¡
+		BufferedReader reader; // å£°æ˜BufferedReaderå¯¹è±¡
 
-		public ServerThread(Socket socket) { // ¹¹Ôì·½·¨
+		public ServerThread(Socket socket) { // æ„é€ æ–¹æ³•
 			this.socket = socket;
 		}
 
 		public void run() {
 			try {
 				if (socket != null) {
-					reader = new BufferedReader(new InputStreamReader(socket.getInputStream())); // ÊµÀı»¯BufferedReader¶ÔÏó
-					int index = -1;// ´æ´¢ÍË³öµÄ¿Í»§¶ËË÷ÒıÖµ
+					reader = new BufferedReader(new InputStreamReader(socket.getInputStream())); // å®ä¾‹åŒ–BufferedReaderå¯¹è±¡
+
 					try {
-						while (true) { // Èç¹ûÌ×½Ó×ÖÊÇÁ¬½Ó×´Ì¬
-							String line = reader.readLine();// ¶ÁÈ¡¿Í»§¶ËĞÅÏ¢
+						while (true) {// connect successes
+							String line = reader.readLine();// è¯»å–å®¢æˆ·ç«¯ä¿¡æ¯
 
-							try {
-								index = Integer.parseInt(line);// »ñµÃÍË³öµÄ¿Í»§¶ËË÷ÒıÖµ
-							} catch (Exception ex) {
-								index = -1;
-							}
 							if (line != null) {
-								String[] value = new String[3];// ´´½¨Êı×é
-
-								if (line.startsWith("N")) {
-									System.out.println("get name");
-									value[0] = line.substring(1);// »ñµÃĞÕÃû
-									ta_info.append("user name is " + line.substring(1) + "\n");// »ñµÃ¿Í»§¶ËĞÅÏ¢
-								}
-								if (line.startsWith("P")) {
-									System.out.println("get pin");
-									value[1] = line.substring(1);// »ñµÃÃÜÂë
+								if (line.startsWith("N"))
+									ta_info.append("user name is " + line.substring(1) + "\n");
+								if (line.startsWith("P"))
 									ta_info.append("password is " + line.substring(1) + "\n");
-								}
-								if (line.startsWith("E")) {
-									System.out.println("get email");
-									value[2] = line.substring(1);// »ñµÃemail
+								if (line.startsWith("E"))
 									ta_info.append("email is " + line.substring(1) + "\n");
-								}
-								try {
-									
-									Connection conn = DAO.getConn();// »ñµÃÊı¾İ¿âÁ¬½Ó
-									
-									String sql = "insert into user (uName,pin,email) values(£¿,£¿,£¿)";// ¶¨ÒåSQLÓï¾ä
-									
-									PreparedStatement ps = conn.prepareStatement(sql);// ´´½¨PreparedStatement¶ÔÏó£¬²¢´«µİSQLÓï¾ä
-									
-									ps.setString(1, value[0]);// ÎªµÚ1¸ö²ÎÊı¸³Öµ
-									ps.setString(2, value[1]);// ÎªµÚ2¸ö²ÎÊı¸³Öµ
-									ps.setString(3, value[2]);// ÎªµÚ2¸ö²ÎÊı¸³Öµ
-									
-									int flag = ps.executeUpdate(); // Ö´ĞĞSQLÓï¾ä£¬»ñµÃ¸üĞÂ¼ÇÂ¼Êı
-									ps.close();// ¹Ø±ÕPreparedStatement¶ÔÏó
-									conn.close();// ¹Ø±ÕÁ¬½Ó
-									if (flag > 0) {
-										ta_info.append("²¢³É¹¦µØ±£´æµ½Êı¾İ¿âÖĞ¡£\n");
-										writer.println("±£´æ³É¹¦¡£");// Ïò¿Í»§¶ËÊä³ö±£´æ³É¹¦µÄĞÅÏ¢
-									} else {
-										writer.println("±£´æÊ§°Ü¡£\n");// Ïò¿Í»§¶ËÊä³ö±£´æ³É¹¦µÄĞÅÏ¢
-									}
-								} catch (SQLException ee) {
-									writer.println("±£´æÊ§°Ü¡£\n" + ee.getMessage());// Ïò¿Í»§¶ËÊä³ö±£´æ³É¹¦µÄĞÅÏ¢
-								}
+								if (line.startsWith("n"))
+									ta_info.append("class name is " + line.substring(1) + "\n");
+								if (line.startsWith("l"))
+									ta_info.append("location is " + line.substring(1) + "\n");
+								if (line.startsWith("t"))
+									ta_info.append("teacher is " + line.substring(1) + "\n");
 							}
-						}
-					} catch (Exception e) {
-						if (index != -1) {
-							vector.set(index, null);// ½«ÍË³öµÄ¿Í»§¶ËÌ×½Ó×ÖÉèÖÃÎªnull
-							ta_info.append("µÚ" + (index + 1) + "¸ö¿Í»§¶ËÒÑ¾­ÍË³ö¡£\n"); // Êä³öÒì³£ĞÅÏ¢
 						}
 					} finally {
 						try {
 							if (reader != null) {
-								reader.close();// ¹Ø±ÕÁ÷
+								reader.close();// å…³é—­æµ
 							}
 							if (socket != null) {
-								socket.close(); // ¹Ø±ÕÌ×½Ó×Ö
+								socket.close();
 							}
 						} catch (IOException e) {
 							e.printStackTrace();
@@ -144,15 +104,15 @@ public class ServerSocketFrame extends JFrame {
 		writer.println(text);
 	}
 
-	public static void main(String[] args) { // Ö÷·½·¨
-		ServerSocketFrame frame = new ServerSocketFrame(); // ´´½¨±¾Àà¶ÔÏó
-		frame.setVisible(true);// ÏÔÊ¾´°Ìå
-		frame.getServer(); // µ÷ÓÃ·½·¨
+	public static void main(String[] args) {
+		ServerSocketFrame frame = new ServerSocketFrame();
+		frame.setVisible(true);
+		frame.getServer();
 	}
 
 	public ServerSocketFrame() {
 		super();
-		setTitle("·şÎñÆ÷¶Ë³ÌĞò");
+		setTitle("Server");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 379, 260);
 
@@ -166,7 +126,7 @@ public class ServerSocketFrame extends JFrame {
 		getContentPane().add(panel, BorderLayout.SOUTH);
 
 		final JLabel label = new JLabel();
-		label.setText("·şÎñÆ÷·¢ËÍµÄĞÅÏ¢£º");
+		label.setText("Serverï¼š");
 		panel.add(label);
 
 		tf_send = new JTextField();
@@ -177,31 +137,31 @@ public class ServerSocketFrame extends JFrame {
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
 				for (int i = 0; i < vector.size(); i++) {
-					Socket socket = vector.get(i);// »ñµÃÁ¬½Ó³É¹¦µÄÌ×½Ó×Ö¶ÔÏó
+					Socket socket = vector.get(i);// è·å¾—è¿æ¥æˆåŠŸçš„å¥—æ¥å­—å¯¹è±¡
 					PrintWriter writer;
 					try {
 						if (socket != null && !socket.isClosed()) {
-							writer = new PrintWriter(socket.getOutputStream(), true);// ´´½¨Êä³öÁ÷¶ÔÏó
-							writeInfo(writer, tf_send.getText()); // ½«ÎÄ±¾¿òÖĞĞÅÏ¢Ğ´ÈëÁ÷
+							writer = new PrintWriter(socket.getOutputStream(), true);// åˆ›å»ºè¾“å‡ºæµå¯¹è±¡
+							writeInfo(writer, tf_send.getText()); // å°†æ–‡æœ¬æ¡†ä¸­ä¿¡æ¯å†™å…¥æµ
 						}
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
 				}
-				ta_info.append("·şÎñÆ÷·¢ËÍµÄĞÅÏ¢ÊÇ£º" + tf_send.getText() + "\n"); // ½«ÎÄ±¾¿òÖĞĞÅÏ¢ÏÔÊ¾ÔÚÎÄ±¾ÓòÖĞ
-				tf_send.setText(""); // ½«ÎÄ±¾¿òÇå¿Õ
+				ta_info.append("Serverï¼š" + tf_send.getText() + "\n"); // å°†æ–‡æœ¬æ¡†ä¸­ä¿¡æ¯æ˜¾ç¤ºåœ¨æ–‡æœ¬åŸŸä¸­
+				tf_send.setText(""); // å°†æ–‡æœ¬æ¡†æ¸…ç©º
 			}
 		});
-		button.setText("·¢  ËÍ");
+		button.setText("Send");
 		panel.add(button);
 
 		final JPanel panel_1 = new JPanel();
 		getContentPane().add(panel_1, BorderLayout.NORTH);
 
 		final JLabel label_1 = new JLabel();
-		label_1.setForeground(new Color(0, 0, 255));
-		label_1.setFont(new Font("", Font.BOLD, 22));
-		label_1.setText("Ò»¶Ô¶àÍ¨ĞÅ¡ª¡ª·şÎñÆ÷¶Ë³ÌĞò");
+		label_1.setForeground(Color.BLACK);
+		label_1.setFont(new Font("Chalkboard", Font.BOLD, 22));
+		label_1.setText("Server Side");
 		panel_1.add(label_1);
 	}
 }
