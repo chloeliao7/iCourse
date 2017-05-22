@@ -32,14 +32,13 @@ public class Loging extends JFrame implements Runnable {
 	private Socket socket; // 声明Socket对象
 
 	private void connect() { // 连接套接字方法
-
 		try {
 			socket = new Socket("localhost", 1978);
-			while (true) {
-				writer = new PrintWriter(socket.getOutputStream(), true);// 创建输出流对象
-				reader = new BufferedReader(new InputStreamReader(socket.getInputStream())); // 实例化BufferedReader对象
-				new Thread(this).start();
-			}
+			// while (true) {
+			writer = new PrintWriter(socket.getOutputStream(), true);// 创建输出流对象
+			reader = new BufferedReader(new InputStreamReader(socket.getInputStream())); // 实例化BufferedReader对象
+			new Thread(this).start();
+			// }
 		} catch (Exception e) {
 			e.printStackTrace(); // 输出异常信息
 		}
@@ -54,13 +53,8 @@ public class Loging extends JFrame implements Runnable {
 				if (reader != null) {
 					String instruction = reader.readLine();
 					// 读取服务器发送的信息
-					if (instruction.matches("wrongname")) {
-						JOptionPane.showMessageDialog(null, "No this user, please input your name again!");
-						name.setText(" ");
-						pin.setText(" ");
-					}
-					if (instruction.matches("wrongpin")) {
-						JOptionPane.showMessageDialog(null, "miss password!");
+					if (instruction.matches("fail")) {
+						JOptionPane.showMessageDialog(null, "No this user or wrong pin, please sign in again!");
 						name.setText(" ");
 						pin.setText(" ");
 					}
@@ -68,7 +62,7 @@ public class Loging extends JFrame implements Runnable {
 						JOptionPane.showMessageDialog(null, "Welcom back ");
 						account new_account = new account(name.getText(), pin.getText());
 						users.accounts.add(new_account);
-						new CourseTable(users.accounts.indexOf(new_account));
+						new CourseTable();
 						isrun = false;
 					}
 				}
@@ -121,8 +115,9 @@ public class Loging extends JFrame implements Runnable {
 
 		Enter.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
-				writer.println("N" + name.getText());
-				writer.println("P" + pin.getText());
+				writer.println("Login");
+				writer.println(name.getText());
+				writer.println(pin.getText());
 			}
 		});
 		Cancel.addActionListener(new ActionListener() {
@@ -142,4 +137,5 @@ public class Loging extends JFrame implements Runnable {
 	}
 
 }
+
 
