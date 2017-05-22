@@ -2,10 +2,7 @@ package Server;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,10 +13,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Vector;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -27,230 +22,127 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import Client.Course;
-
-public class ServerSocketFrameWithDB extends JFrame {
+public class ServerSocketFrame extends JFrame {
 	private JTextField tf_send;
 	private JTextArea ta_info;
-	private PrintWriter writer; // ÉùÃ÷PrintWriterÀà¶ÔÏó
-	private ServerSocket server; // ÉùÃ÷ServerSocket¶ÔÏó
-	private Socket socket; // ÉùÃ÷Socket¶ÔÏósocket
-	private Vector<Socket> vector = new Vector<Socket>();// ÓÃÓÚ´æ´¢Á¬½Óµ½·şÎñÆ÷µÄ¿Í»§¶ËÌ×½Ó×Ö¶ÔÏó
-	private int counts = 0;// ÓÃÓÚ¼ÇÂ¼Á¬½ÓµÄ¿Í»§ÈËÊı
+	private PrintWriter writer; // å£°æ˜PrintWriterç±»å¯¹è±¡
+	private ServerSocket server; // å£°æ˜ServerSocketå¯¹è±¡
+	private Socket socket; // å£°æ˜Socketå¯¹è±¡socket
+	private Vector<Socket> vector = new Vector<Socket>();// ç”¨äºå­˜å‚¨è¿æ¥åˆ°æœåŠ¡å™¨çš„å®¢æˆ·ç«¯å¥—æ¥å­—å¯¹è±¡
+	private int counts = 0;// ç”¨äºè®°å½•è¿æ¥çš„å®¢æˆ·äººæ•°
+	private String instruction;
 
 	public void getServer() {
 		try {
-			server = new ServerSocket(1978); // ÊµÀı»¯Socket¶ÔÏó
-			ta_info.append("Connction Success\n"); // Êä³öĞÅÏ¢
+			server = new ServerSocket(1978); // å®ä¾‹åŒ–Socketå¯¹è±¡
+			ta_info.append("Connction Success\n"); // è¾“å‡ºä¿¡æ¯
 			while (true) {
-				socket = server.accept(); // ÊµÀı»¯Socket¶ÔÏó
+				socket = server.accept(); // å®ä¾‹åŒ–Socketå¯¹è±¡
 				counts++;
-				ta_info.append("Client" + counts + "connected successed" + "\n"); // Êä³öĞÅÏ¢
+				ta_info.append("Client" + counts + "connected successed" + "\n"); // è¾“å‡ºä¿¡æ¯
 				PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-				out.println(String.valueOf(counts - 1));// Ïò¿Í»§¶Ë·¢ËÍÌ×½Ó×ÖË÷Òı
-				vector.add(socket);// ´æ´¢¿Í»§¶ËÌ×½Ó×Ö¶ÔÏó
-				new ServerThread(socket).start();// ´´½¨²¢Æô¶¯Ïß³ÌĞò
+				out.println(String.valueOf(counts - 1));// å‘å®¢æˆ·ç«¯å‘é€å¥—æ¥å­—ç´¢å¼•
+				vector.add(socket);// å­˜å‚¨å®¢æˆ·ç«¯å¥—æ¥å­—å¯¹è±¡
+
+				new ServerThread(socket).start();// åˆ›å»ºå¹¶å¯åŠ¨çº¿ç¨‹åº
 			}
 		} catch (Exception e) {
-			e.printStackTrace(); // Êä³öÒì³£ĞÅÏ¢
+			e.printStackTrace(); // è¾“å‡ºå¼‚å¸¸ä¿¡æ¯
 		}
 	}
 
 	class ServerThread extends Thread {
-		Socket socket = null; // ´´½¨Socket¶ÔÏó
-		BufferedReader reader; // ÉùÃ÷BufferedReader¶ÔÏó
+		Socket socket = null; // åˆ›å»ºSocketå¯¹è±¡
+		BufferedReader reader; // å£°æ˜BufferedReaderå¯¹è±¡
 
-		public ServerThread(Socket socket) { // ¹¹Ôì·½·¨
+		public ServerThread(Socket socket) { // æ„é€ æ–¹æ³•
 			this.socket = socket;
+
+			try {
+				writer = new PrintWriter(socket.getOutputStream(), true);
+				reader = new BufferedReader(new InputStreamReader(socket.getInputStream())); // å®ä¾‹åŒ–BufferedReaderå¯¹è±¡
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
 		}
 
 		public void run() {
 			try {
 				if (socket != null) {
-					reader = new BufferedReader(new InputStreamReader(socket.getInputStream())); // ÊµÀı»¯BufferedReader¶ÔÏó
 
 					try {
-						while (true) { // Èç¹ûÌ×½Ó×ÖÊÇÁ¬½Ó×´Ì¬
-							String line = reader.readLine();// ¶ÁÈ¡¿Í»§¶ËĞÅÏ¢
+						while (true) { // å¦‚æœå¥—æ¥å­—æ˜¯è¿æ¥çŠ¶æ€
+							String line = reader.readLine();// è¯»å–å®¢æˆ·ç«¯ä¿¡æ¯
 							if (line != null) {
 
 								if (line.equals("Signin")) {
 									Signin();
 								} else if (line.equals("Login")) {
-									Login();
-								} else if (line.equals("Edit")) {
-									Edit();
+									Loging();
 								}
+
 							}
 						}
 					} finally {
 						try {
 							if (reader != null) {
-								reader.close();// ¹Ø±ÕÁ÷
+								reader.close();// å…³é—­æµ
 							}
 							if (socket != null) {
-								socket.close(); // ¹Ø±ÕÌ×½Ó×Ö
+								socket.close(); // å…³é—­å¥—æ¥å­—
 							}
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
 					}
-
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 
-		//Connection conn = DAO.getConn();// »ñµÃÊı¾İ¿âÁ¬½Ó
-		//String sql = "select * from course where uID = ? ";
-		//PreparedStatement ps = conn.prepareStatement(sql);
-		//ps.setString(1, value[0]);// ÎªµÚ1¸ö²ÎÊı¸³Öµ
-		//ResultSet rs = ps.executeQuery();
-		
-		private void Edit() {
+		private void Loging() {
 			// TODO Auto-generated method stub
-			String[] value = new String[3];// get Course name, get room, get
-											// teacher's name
+			String[] value = new String[2];// åˆ›å»ºæ•°ç»„ä»¥å­˜å‚¨å®¢æˆ·ç«¯æ¥æ”¶çš„ä¿¡æ¯
 			try {
 				value[0] = reader.readLine();
-			} catch (IOException e2) {
-				e2.printStackTrace();
-			}
-			try {
 				value[1] = reader.readLine();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-			try {
-				value[2] = reader.readLine();
 			} catch (IOException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
-			int[] values = new int[3];// get userID , courseOrder , day
-			try {
-				values[0] = reader.read();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			try {
-				values[1] = reader.read();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			try {
-				values[2] = reader.read();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-			ta_info.append("Course name is " + value[0] + "\n");// »ñµÃ¿Í»§¶ËĞÅÏ¢
-			ta_info.append("room is " + value[1] + "\n");
-			ta_info.append("teacher is " + value[2] + "\n");
-			ta_info.append("userID is " + values[0] + "\n");
-			ta_info.append("course is " + values[1] + "\n");
-			ta_info.append("day is " + values[2] + "\n");
-			
-			try {
-				Connection conn = DAO.getConn();// »ñµÃÊı¾İ¿âÁ¬½Ó
-				System.out.println(value[0]);
-				String sql = "update course set cName = ? where courseOrder = ? and courseDay = ?";// ¶¨ÒåSQL
-																				// PreparedStatement
-																				// ps
-																				// =
-																				// conn.prepareStatement(sql);//
-																				// ´´½¨PreparedStatement¶ÔÏó£¬²¢´«µİSQLÓï¾ä
-				PreparedStatement ps = conn.prepareStatement(sql);
-				ps.setString(1, value[0]);// ÎªµÚ1¸ö²ÎÊı¸³Öµ
-				ps.setInt(2, values[1]);// ÎªµÚ2¸ö²ÎÊı¸³Öµ
-				ps.setInt(3, values[2]);// ÎªµÚ3¸ö²ÎÊı¸³Öµ
-
-				int flag = ps.executeUpdate(); // Ö´ĞĞSQLÓï¾ä£¬»ñµÃ¸üĞÂ¼ÇÂ¼Êı
-
-				String sql1 = "update course set room = ? where courseOrder = ? and courseDay = ?";
-				ps = conn.prepareStatement(sql1);
-				ps.setString(1, value[1]);// ÎªµÚ1¸ö²ÎÊı¸³Öµ
-				ps.setInt(2, values[1]);// ÎªµÚ2¸ö²ÎÊı¸³Öµ
-				ps.setInt(3, values[2]);// ÎªµÚ3¸ö²ÎÊı¸³Öµ
-				
-				flag = ps.executeUpdate(); // Ö´ĞĞSQLÓï¾ä£¬»ñµÃ¸üĞÂ¼ÇÂ¼Êı
-				
-				String sql2 = "update course set teacher = ? where courseOrder = ? and courseDay = ?";
-				ps = conn.prepareStatement(sql2);
-				ps.setString(1, value[2]);// ÎªµÚ1¸ö²ÎÊı¸³Öµ
-				ps.setInt(2, values[1]);// ÎªµÚ2¸ö²ÎÊı¸³Öµ
-				ps.setInt(3, values[2]);// ÎªµÚ3¸ö²ÎÊı¸³Öµ
-				
-				flag = ps.executeUpdate(); // Ö´ĞĞSQLÓï¾ä£¬»ñµÃ¸üĞÂ¼ÇÂ¼Êı
-				
-				ps.close();// ¹Ø±ÕPreparedStatement¶ÔÏó
-				conn.close();// ¹Ø±ÕÁ¬½Ó
-				if (flag > 0) {
-					ta_info.append("and save into database sucessfully¡£\n");
-					writer.println("save sucessfully¡£");// Ïò¿Í»§¶ËÊä³ö±£´æ³É¹¦µÄĞÅÏ¢
-				} else {
-					writer.println("fail to save¡£\n");// Ïò¿Í»§¶ËÊä³ö±£´æ³É¹¦µÄĞÅÏ¢
-				}
-			} catch (SQLException ee) {
-				writer.println("fail to save¡£\n" + ee.getMessage());// Ïò¿Í»§¶ËÊä³ö±£´æ³É¹¦µÄĞÅÏ¢
-			}
-		}
-
-		private void Login() {
-			// TODO Auto-generated method stub
-			String[] value = new String[2];// ´´½¨Êı×éÒÔ´æ´¢¿Í»§¶Ë½ÓÊÕµÄĞÅÏ¢
-			try {
-				value[0] = reader.readLine();
-			} catch (IOException e2) {
-				e2.printStackTrace();
-			}
-			try {
-				value[1] = reader.readLine();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-			try {
-				value[2] = reader.readLine();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-			ta_info.append("user name is " + value[0] + "\n");// »ñµÃ¿Í»§¶ËĞÅÏ¢
+			ta_info.append("user name is " + value[0] + "\n");// è·å¾—å®¢æˆ·ç«¯ä¿¡æ¯
 			ta_info.append("password is " + value[1] + "\n");
-
 			try {
-
-				Connection conn = DAO.getConn();// »ñµÃÊı¾İ¿âÁ¬½Ó
-				System.out.println(value[0]);
-				Statement st = conn.createStatement();
-
-				ResultSet rs = st.executeQuery("SELECT * from user");
-				String name = null;
-				String pin = null;
 				int uID = 0;
-				while (rs.next() && name != value[0] && pin != value[1]) {
-					uID = rs.getInt("uID");
+				Connection conn = DAO.getConn();// è·å¾—æ•°æ®åº“è¿æ¥
+				String sql = "select uID from user where uName = ? and pin = ?";// å®šä¹‰SQL
+				PreparedStatement ps = conn.prepareStatement(sql);// åˆ›å»ºPreparedStatementå¯¹è±¡ï¼Œå¹¶ä¼ é€’SQLè¯­å¥
+				ps.setString(1, value[0]);// ä¸ºç¬¬1ä¸ªå‚æ•°èµ‹å€¼
+				ps.setString(2, value[1]);// ä¸ºç¬¬2ä¸ªå‚æ•°èµ‹å€¼
+				ResultSet rs = ps.executeQuery();
+
+				while (rs.next()) {
+					uID = rs.getInt(1);
 				}
+
 				System.out.println(uID);
-
-				if (uID == 0) {
-					// Ïò¿Í»§¶Ë·¢ËÍ¡°wrongname¡±
-				} else {
-					// Ïò¿Í»§¶Ë·¢ËÍ¡°success¡±
-					// Ïò¿Í»§¶Ë´«ÊäuID²¢´æÈëaccount_id
-				}
+				if (uID != 0)
+					writer.println("success");
+				else
+					writer.println("fail");
 				rs.close();
-				st.close();// ¹Ø±ÕPreparedStatement¶ÔÏó
-				conn.close();// ¹Ø±ÕÁ¬½Ó
-
+				ps.close();// å…³é—­PreparedStatementå¯¹è±¡
+				conn.close();// å…³é—­è¿æ¥
 			} catch (SQLException ee) {
-				writer.println("fail to save¡£\n" + ee.getMessage());// Ïò¿Í»§¶ËÊä³ö±£´æ³É¹¦µÄĞÅÏ¢
+				writer.println("fail to saveã€‚\n" + ee.getMessage());// å‘å®¢æˆ·ç«¯è¾“å‡ºä¿å­˜æˆåŠŸçš„ä¿¡æ¯
 			}
 		}
 
 		private void Signin() {
-			String[] value = new String[3];// ´´½¨Êı×éÒÔ´æ´¢¿Í»§¶Ë½ÓÊÕµÄĞÅÏ¢
+			// TODO Auto-generated method stub
+			String[] value = new String[3];// åˆ›å»ºæ•°ç»„ä»¥å­˜å‚¨å®¢æˆ·ç«¯æ¥æ”¶çš„ä¿¡æ¯
 			try {
 				value[0] = reader.readLine();
 			} catch (IOException e2) {
@@ -269,51 +161,42 @@ public class ServerSocketFrameWithDB extends JFrame {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			ta_info.append("user name is " + value[0] + "\n");// »ñµÃ¿Í»§¶ËĞÅÏ¢
+			ta_info.append("user name is " + value[0] + "\n");// è·å¾—å®¢æˆ·ç«¯ä¿¡æ¯
 			ta_info.append("password is " + value[1] + "\n");
 			ta_info.append("email is " + value[2] + "\n");
 			try {
-
-				Connection conn = DAO.getConn();// »ñµÃÊı¾İ¿âÁ¬½Ó
-				System.out.println(value[0]);
-				String sql = "insert into user (uName,pin,email) values(?,?,?)";// ¶¨ÒåSQL
-																				// PreparedStatement
-																				// ps
-																				// =
-																				// conn.prepareStatement(sql);//
-																				// ´´½¨PreparedStatement¶ÔÏó£¬²¢´«µİSQLÓï¾ä
+				Connection conn = DAO.getConn();// è·å¾—æ•°æ®åº“è¿æ¥
+	
+				String sql = "insert into user (uName,pin,email) values(?,?,?)";// å®šä¹‰SQL
 				PreparedStatement ps = conn.prepareStatement(sql);
-				ps.setString(1, value[0]);// ÎªµÚ1¸ö²ÎÊı¸³Öµ
-				ps.setString(2, value[1]);// ÎªµÚ2¸ö²ÎÊı¸³Öµ
-				ps.setString(3, value[2]);// ÎªµÚ2¸ö²ÎÊı¸³Öµ
-
-				int flag = ps.executeUpdate(); // Ö´ĞĞSQLÓï¾ä£¬»ñµÃ¸üĞÂ¼ÇÂ¼Êı
-				ps.close();// ¹Ø±ÕPreparedStatement¶ÔÏó
-				conn.close();// ¹Ø±ÕÁ¬½Ó
+				ps.setString(1, value[0]);// ä¸ºç¬¬1ä¸ªå‚æ•°èµ‹å€¼
+				ps.setString(2, value[1]);// ä¸ºç¬¬2ä¸ªå‚æ•°èµ‹å€¼
+				ps.setString(3, value[2]);// ä¸ºç¬¬2ä¸ªå‚æ•°èµ‹å€¼
+				int flag = ps.executeUpdate(); // æ‰§è¡ŒSQLè¯­å¥ï¼Œè·å¾—æ›´æ–°è®°å½•æ•°
+				ps.close();// å…³é—­PreparedStatementå¯¹è±¡
+				conn.close();// å…³é—­è¿æ¥
 				if (flag > 0) {
-					ta_info.append("and save into database sucessfully¡£\n");
-					writer.println("save sucessfully¡£");// Ïò¿Í»§¶ËÊä³ö±£´æ³É¹¦µÄĞÅÏ¢
+					ta_info.append("save into database sucessfullyã€‚\n");// åœ¨æœåŠ¡å™¨è¾“å‡ºç»“æœ
+					writer.println("success");
 				} else {
-					writer.println("fail to save¡£\n");// Ïò¿Í»§¶ËÊä³ö±£´æ³É¹¦µÄĞÅÏ¢
+					ta_info.append("fail to saveã€‚\n");// åœ¨æœåŠ¡å™¨è¾“å‡ºç»“æœ
+					instruction = "fail";
 				}
 			} catch (SQLException ee) {
-				writer.println("fail to save¡£\n" + ee.getMessage());// Ïò¿Í»§¶ËÊä³ö±£´æ³É¹¦µÄĞÅÏ¢
+				writer.println("fail to saveã€‚\n" + ee.getMessage());// å‘å®¢æˆ·ç«¯è¾“å‡ºä¿å­˜æˆåŠŸçš„ä¿¡æ¯
 			}
 		}
 
 	}
 
-	private void writeInfo(PrintWriter writer, String text) {
-		writer.println(text);
-	}
 
 	public static void main(String[] args) {
-		ServerSocketFrameWithDB frame = new ServerSocketFrameWithDB();
+		ServerSocketFrame frame = new ServerSocketFrame();
 		frame.setVisible(true);
 		frame.getServer();
 	}
 
-	public ServerSocketFrameWithDB() {
+	public ServerSocketFrame() {
 		super();
 		setTitle("Server");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -328,43 +211,14 @@ public class ServerSocketFrameWithDB extends JFrame {
 		final JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.SOUTH);
 
-		final JLabel label = new JLabel();
-		label.setText("Server£º");
-		panel.add(label);
-
-		tf_send = new JTextField();
-		tf_send.setPreferredSize(new Dimension(150, 25));
-		panel.add(tf_send);
-
-		final JButton button = new JButton();
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(final ActionEvent e) {
-				for (int i = 0; i < vector.size(); i++) {
-					Socket socket = vector.get(i);// »ñµÃÁ¬½Ó³É¹¦µÄÌ×½Ó×Ö¶ÔÏó
-					PrintWriter writer;
-					try {
-						if (socket != null && !socket.isClosed()) {
-							writer = new PrintWriter(socket.getOutputStream(), true);// ´´½¨Êä³öÁ÷¶ÔÏó
-							writeInfo(writer, tf_send.getText()); // ½«ÎÄ±¾¿òÖĞĞÅÏ¢Ğ´ÈëÁ÷
-						}
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-				}
-				ta_info.append("Server£º" + tf_send.getText() + "\n"); // ½«ÎÄ±¾¿òÖĞĞÅÏ¢ÏÔÊ¾ÔÚÎÄ±¾ÓòÖĞ
-				tf_send.setText(""); // ½«ÎÄ±¾¿òÇå¿Õ
-			}
-		});
-		button.setText("Send");
-		panel.add(button);
-
 		final JPanel panel_1 = new JPanel();
 		getContentPane().add(panel_1, BorderLayout.NORTH);
-
 		final JLabel label_1 = new JLabel();
 		label_1.setForeground(Color.BLACK);
 		label_1.setFont(new Font("Chalkboard", Font.BOLD, 22));
 		label_1.setText("Server Side");
 		panel_1.add(label_1);
 	}
+
 }
+
