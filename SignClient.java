@@ -1,4 +1,4 @@
-package table;
+package Client;
 
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -38,12 +38,11 @@ public class Sign extends JFrame implements Runnable {
 
 		try {
 			socket = new Socket("localhost", 1978);
-			while (true) {
-				writer = new PrintWriter(socket.getOutputStream(), true);// 创建输出流对象
-				reader = new BufferedReader(new InputStreamReader(socket.getInputStream())); // 实例化BufferedReader对象
-
-				new Thread(this).start();
-			}
+			// while (true) {
+			writer = new PrintWriter(socket.getOutputStream(), true);// 创建输出流对象
+			reader = new BufferedReader(new InputStreamReader(socket.getInputStream())); // 实例化BufferedReader对象
+			new Thread(this).start();
+			// }
 		} catch (Exception e) {
 			e.printStackTrace(); // 输出异常信息
 		}
@@ -94,9 +93,10 @@ public class Sign extends JFrame implements Runnable {
 		Enter.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
 				if (pin.getText().contentEquals(repin.getText())) {
-					writer.println("N" + name.getText());
-					writer.println("P" + pin.getText());
-					writer.println("E" + email.getText());
+					writer.println("Signin");
+					writer.println(name.getText());
+					writer.println(pin.getText());
+					writer.println(email.getText());
 				} else {
 					JOptionPane.showMessageDialog(null, "The pin doesn't fit.Please sign up again.");
 					name.setText(" ");
@@ -150,7 +150,7 @@ public class Sign extends JFrame implements Runnable {
 						account new_account = new account(name.getText(), pin.getText());
 						new_account.setEmail(email.getText());
 						users.accounts.add(new_account);
-						new CourseTable(users.accounts.indexOf(new_account));
+						new CourseTable();
 						isrun = false;
 					}
 				}
@@ -171,5 +171,3 @@ public class Sign extends JFrame implements Runnable {
 		}
 	}
 }
-
-
