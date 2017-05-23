@@ -28,12 +28,50 @@ public class CourseTable extends JFrame implements Runnable {
 	private void connect() {
 		try {
 			socket = new Socket("localhost", 1978);
-			writer = new PrintWriter(socket.getOutputStream(), true);// 创建输出流对象
+			// writer = new PrintWriter(socket.getOutputStream(), true);// 创建输出流对象
 			reader = new BufferedReader(new InputStreamReader(socket.getInputStream())); // 实例化BufferedReader对象
 			new Thread().start();
-
 		} catch (Exception e) {
 			e.printStackTrace(); // 输出异常信息
+		}
+	}
+
+	boolean isrun = true;
+
+	@Override
+	public void run() {
+		System.out.println("??????? 1");
+		try {
+			while (isrun) { // 如果套接字是连接状态
+				while (reader != null) {
+					try {
+						int row = reader.read();
+						System.out.println(row + "啊啊啊啊啊");
+						int col = reader.read();
+						String name = reader.readLine();
+						String room = reader.readLine();
+						String teacher = reader.readLine();
+						content[row][col] = name + " " + room + " " + teacher;
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+				isrun = false;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (reader != null) {
+					reader.close();
+				}
+				if (socket != null) {
+					socket.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -43,19 +81,6 @@ public class CourseTable extends JFrame implements Runnable {
 
 	public CourseTable() {
 		String[] time = { "8:00~9:30", "9:55~11:30", "13:30~15:00", "15:25~17:00", "19:00~20:30" };
-		for (int i = 0; i < 5; i++) {
-			for (int j = 0; j < 7; j++) {
-				while(reader!=null){
-					try {
-						String infor = reader.readLine();
-						// content[i][j] = users.accounts.get(account_id).courses[i][j].getName();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-				}
-			}
-		}
 		for (int i = 0; i < 5; i++) {
 			content[i][0] = time[i];
 		}
@@ -113,43 +138,14 @@ public class CourseTable extends JFrame implements Runnable {
 			public void mouseClicked(MouseEvent e) {
 				int row = table.getSelectedRow();
 				int column = table.getSelectedColumn();
-				new edit(row, column, 1);// ???
+				new edit(row, column, 1);// 接收user ID？？
 				dispose();
 			}
 		});
 
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setVisible(true);
+		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		this.setVisible(true);
 		connect();
-	}
-
-	boolean isrun = true;
-
-	@Override
-	public void run() {
-		try {
-			while (isrun) { // 如果套接字是连接状态
-				if (reader != null) {
-					// new CourseTable();
-					String info = reader.readLine();
-
-					isrun = false;
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (reader != null) {
-					reader.close();
-				}
-				if (socket != null) {
-					socket.close();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 }
 
