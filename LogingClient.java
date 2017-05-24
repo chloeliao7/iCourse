@@ -22,25 +22,40 @@ import setting.users;
 public class Loging extends JFrame implements Runnable {
 
 	JLabel User;
+	//set a form for user name
 	JLabel PIN;
+	//set a form for password
 	JButton Enter;
+	//set a button to enter the app
 	JButton Cancel;
+	//set a button to cancel the edit
 	JTextField name;
+	//Allow edit single line user name text 
 	JTextField pin;
-	private PrintWriter writer; // 声明PrintWriter类对象
-	private BufferedReader reader; // 声明BufferedReader对象
-	private Socket socket; // 声明Socket对象
+	//Allow edit single line password text
+	private PrintWriter writer;
+	//creat a print object
+	private BufferedReader reader; 
+	// Wrapping character streams to put character streams into the cache
+	private Socket socket; 
+	// creat a socket
 
-	private void connect() { // 连接套接字方法
+	private void connect() { 
 		try {
 			socket = new Socket("localhost", 1978);
 			// while (true) {
-			writer = new PrintWriter(socket.getOutputStream(), true);// 创建输出流对象
-			reader = new BufferedReader(new InputStreamReader(socket.getInputStream())); // 实例化BufferedReader对象
+			// writer = new PrintWriter(socket.getOutputStream(), true);
+			//  get the socket output stream to write data
+			writer = new PrintWriter(socket.getOutputStream(), true);
+			//The output stream is obtained by the Socket object
+			reader = new BufferedReader(new InputStreamReader(socket.getInputStream())); 
+			//Constructing BufferedReader objects from system standard input devices
 			new Thread(this).start();
 			// }
 		} catch (Exception e) {
-			e.printStackTrace(); // 输出异常信息
+			e.printStackTrace(); 
+			/*The command line prints the location and reason
+			for the error message in the program*/
 		}
 	}
 
@@ -49,10 +64,10 @@ public class Loging extends JFrame implements Runnable {
 	@Override
 	public void run() {
 		try {
-			while (isrun) { // 如果套接字是连接状态
+			while (isrun) { 
 				if (reader != null) {
 					String instruction = reader.readLine();
-					// 读取服务器发送的信息
+					
 					if (instruction.matches("fail")) {
 						JOptionPane.showMessageDialog(null, "No this user or wrong pin, please sign in again!");
 						name.setText(" ");
@@ -69,16 +84,22 @@ public class Loging extends JFrame implements Runnable {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			/*The command line prints the location and reason
+			for the error message in the program*/
 		} finally {
 			try {
 				if (reader != null) {
 					reader.close();
+					//close the reader
 				}
 				if (socket != null) {
 					socket.close();
+					//close the socket
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
+				/*The command line prints the location and reason
+				for the error message in the program*/
 			}
 		}
 	}
@@ -89,29 +110,43 @@ public class Loging extends JFrame implements Runnable {
 
 	public Loging() {
 		this.setSize(400, 500);
+		//set the size of login
 		getContentPane().setLayout(null);
+		//Setting layout manager
 		this.setLocation(new Point(600, 200));
 
 		User = new JLabel("User:");
+		//display text user
 		User.setBounds(65, 100, 100, 30);
+		//set the bound of the user form
 		PIN = new JLabel("PIN:");
+		//display text password
 		PIN.setBounds(65, 150, 100, 30);
+		//set the bound of the password form
 		Enter = new JButton("Enter");
+		//set a button named enter
 		Enter.setBounds(225, 300, 80, 30);
+		//set the bound of the enter form
 		Cancel = new JButton("Cancel");
+		//set a button named cancel
 		Cancel.setBounds(95, 300, 80, 30);
+		//set the bound of the cancel form
 
 		name = new JTextField();
 		name.setBounds(140, 100, 120, 30);
+		//Allow edit single line user name text
 		pin = new JTextField();
 		pin.setBounds(140, 150, 120, 30);
-
+        //Allow edit single line password text
+		
 		getContentPane().add(User);
 		getContentPane().add(PIN);
 		getContentPane().add(Enter);
 		getContentPane().add(Cancel);
 		getContentPane().add(name);
 		getContentPane().add(pin);
+		/*Initializes some containers 
+		 * that adds some controls to the containers*/
 
 		Enter.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
@@ -126,13 +161,19 @@ public class Loging extends JFrame implements Runnable {
 					socket.close();
 				} catch (IOException e1) {
 					e1.printStackTrace();
+					/*The command line prints the location and reason
+					for the error message in the program*/
 				}
 				dispose();
+				//realse the window
 			}
 		});
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		/*Automatically hide and release the form 
+		after calling any registered WindowListener object*/
 		this.setVisible(true);
+		//Sets the object of the this reference to be visible
 		connect();
 	}
 
