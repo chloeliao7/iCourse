@@ -1,4 +1,12 @@
-package version2;
+package Client;
+
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -8,83 +16,163 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-import setting.users;
-
-public class CourseTable extends JFrame {
+public class CourseTable extends JFrame implements Runnable {
 	final JScrollPane scrollPane = new JScrollPane();
 	JTable table;
-	//To display and edit a regular two-dimensional unit table
+	//creat a form
 	JButton save;
-	//To define a buttton for save
+	//creat a button
 	String[][] content = new String[5][7];
-	int account_id;
-	
-	public CourseTable(int account_id) {
-		this.account_id=account_id;
-		String[] time = { "8:00~9:30", "9:55~11:30", "13:30~15:00", "15:25~17:00", "19:00~20:30" };
-		//set the time of the class for the tale
-		for (int i = 0; i < 5; i++) {
-			content[i][0] = time[i];
-			//// time not shown????????????
-			for (int j = 0; j < 7; j++) {
-				content[i][j] = users.accounts.get(account_id).courses[i][j].getName();
+	private PrintWriter writer;
+	private BufferedReader reader;
+	private Socket socket;
+	//set a socket
+
+	private void connect() {
+		try {
+			socket = new Socket("localhost", 1978);
+			// writer = new PrintWriter(socket.getOutputStream(), true);
+			//  get the socket output stream to write data
+			reader = new BufferedReader(new InputStreamReader(socket.getInputStream())); // 实例化BufferedReader对象
+			new Thread().start();
+		} catch (Exception e) {
+			e.printStackTrace();
+			/*The command line prints the location and reason
+			for the error message in the program*/
+		}
+	}
+
+	boolean isrun = true;
+
+	@Override
+	public void run() {
+		System.out.println("  1");
+		try {
+			while (isrun) { 
+				// 
+				while (reader != null) {
+					try {
+						int row = reader.read();
+						System.out.println(row + " ");
+						int col = reader.read();
+						String name = reader.readLine();
+						String room = reader.readLine();
+						String teacher = reader.readLine();
+						content[row][col] = name + " " + room + " " + teacher;
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+						/*The command line prints the location and reason
+						for the error message in the program*/
+					}
+				}
+				isrun = false;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			/*The command line prints the location and reason
+			for the error message in the program*/
+		} finally {
+			try {
+				if (reader != null) {
+					reader.close();
+					//close the reader
+				}
+				if (socket != null) {
+					socket.close();
+					//close the socket
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				/*The command line prints the location and reason
+				for the error message in the program*/
 			}
 		}
+	}
 
-		save = new JButton("save");
-		save.setBounds(200, 450, 100, 80);
-		this.add(save);
+	public static void main(String[] args) {
+		new CourseTable();
+	}
 
-		// String[][] content = new String[][] { { "8:00~9:30", " ", " ", " ", "
-		// ", " ", " ", " " },
-		// { "9:55~11:30", " ", " ", " ", " ", " ", " ", "" },
-		// { "13:30~15:00", " ", " ", " ", " ", " ", " ", " " },
-		// { "15:25~17:00", " ", "", " ", " ", " ", " ", " " },
-		// { "19:00~20:30", " ", " ", " ", " ", " ", " ", " " } };
+	/*set the time and the date to class in the course table*/
+	public CourseTable() {
+		String[] time = { "8:00~9:30", "9:55~11:30", "13:30~15:00", "15:25~17:00", "19:00~20:30" };
+		for (int i = 0; i < 5; i++) {
+			content[i][0] = time[i];
+		}
 		String[] day = { "Times", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
-		//set the date of class in the table
 
 		DefaultTableModel tmd = new DefaultTableModel(content, day);
-		 //To achieve the table data additions and deletions to change
 
 		table = new JTable(tmd) {
 			public boolean isCellEditable(int row, int column) {
 				return false;
+				//Change each cell in the table into modifiable
 			}
 		};
 
 		scrollPane.setViewportView(table);
 		//Add scroll bar
 		setTitle("course");
-		 //named the table course
+		//set the title to the table
 		setSize(800, 600);
-		//set the height and width of the window
+		//set the size 
 		setLocation(500, 200);
-		//show the coordinate
+		//set the location
 		scrollPane.setSize(320, 200);
 		//set the size of the scroll bar
 
 		DefaultTableCellRenderer r = new DefaultTableCellRenderer();
 		r.setHorizontalAlignment(JLabel.CENTER);
-		 //make the word show in the center of window
 		table.setDefaultRenderer(Object.class, r);
-		 //Set renderer for table
 		table.setRowHeight(80);
-		//define the row's height as 80
 		table.setFillsViewportHeight(true);
-		//Create the scroll pane and add the table to it.
 		scrollPane.setViewportView(table);
 		add(scrollPane);
 
-		/*add listener for the table*/
-		listenerForTable myaction = new listenerForTable(this);
-		table.addMouseListener(myaction);
-		save.addMouseListener(myaction);
+		/*add mouselistener to the table*/
+		table.addMouseListener(new MouseListener() {
 
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		//When the user clicks a button ,close the window
-		setVisible(true);
-		//Enable visualization of the table
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
 
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int row = table.getSelectedRow();
+				int column = table.getSelectedColumn();
+				new edit(row, column, 1);
+				dispose();
+				//realse the window
+			}
+		});
+
+		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		/*Automatically hide and release the form 
+		after calling any registered WindowListener object*/
+		this.setVisible(true);
+		//Sets the object of the this reference to be visible
+		connect();
 	}
 }
+

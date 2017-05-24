@@ -1,43 +1,50 @@
-package version2;
+package Client;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Point;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 public class Main extends JFrame {
-	/*creat some JLabel*/
-	JLabel Loging;
-	//set a form for login
-	JLabel SignUp;
-	//set a form for signup
+	JButton Loging;
+	//set a button to login
+	JButton SignUp;
+	//set a button to signup
 	JLabel Course;
 	//set a form for course
 
 	public static void main(String[] args) {
 		new Main();
-		//you can use the main method by this way
 	}
 
 	public Main() {
 		this.setSize(800, 500);
 		this.setLocation(new Point(400, 200));
-		this.setLayout(null);
+		getContentPane().setLayout(null);
 		this.setTitle("iCourse");
-		Loging = new JLabel("Loging");
-		Loging.setBounds(650, 330, 100, 30);
-		SignUp = new JLabel("Sign Up");
-		SignUp.setBounds(650, 380, 100, 30);
+		//set title to the table
+		Loging = new JButton("Sign In");
+		Loging.setBounds(650, 357, 100, 30);
+		//set the bound for sign in window
+		SignUp = new JButton("Sign Up");
+		SignUp.setBounds(650, 399, 100, 30);
+		//set the bound for sign up window
 		Course = new JLabel("iCourse");
-		Course.setFont(new java.awt.Font("Andale Mono", 1, 80));
-		Course.setBounds(52, 80, 400, 80);
-		/*add listener*/
+		Course.setForeground(new Color(105, 105, 105));
+		Course.setFont(new Font("Futura", Font.BOLD, 80));
+		Course.setBounds(260, 88, 295, 120);
+		//set the bound for futura
 		listenerForMain myaction = new listenerForMain(this);
 		Loging.addMouseListener(myaction);
 		SignUp.addMouseListener(myaction);
-		this.add(Loging);
-		this.add(SignUp);
-		this.add(Course);
+		getContentPane().add(Loging);
+		getContentPane().add(SignUp);
+		getContentPane().add(Course);
+		//add listener for the window
+		//add some scroll bars
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		/*Automatically hide and release the form 
@@ -47,3 +54,4 @@ public class Main extends JFrame {
 	}
 
 }
+
