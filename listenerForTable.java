@@ -3,27 +3,28 @@ package version2;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-public class listenerForMain implements MouseListener {
+import version2.Course;
 
-	Main a;
 
-	public listenerForMain(Main window) {
+public class listenerForTable implements MouseListener {
+	CourseTable a;
+
+	public listenerForTable(CourseTable window) {
 		a = window;
 	}
 
 	@Override
-	/*another window will appear when users press and release the mouse button*/
 	public void mouseClicked(MouseEvent e) {
 		// TODO Auto-generated method stub
-		if (e.getSource() == a.Loging) {
-			new Loging();
-			a.dispose();
-			//when user click loging the loging window will appear and when user finished the window will close
+		if (e.getSource() == a.save) {
+			// // Incoming server
+			System.out.println("save button correct");
+			//System.out.println(a.user.courses[2][3].getName());
 		}
-		if (e.getSource() == a.SignUp) {
-			new Sign();
-			a.dispose();
-			//when user click signup the sign window will qppear and when user finished the window will close
+		if (e.getSource() == a.table) {
+			int row = a.table.getSelectedRow();
+			int column = a.table.getSelectedColumn();	
+			new edit(row,column,a.account_id);
 		}
 	}
 

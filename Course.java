@@ -1,15 +1,16 @@
-package version1;
+package version2;
 
 public class Course extends Object{
-	/*define some parameters*/
+	//define some parameters
 	private int row;
 	private int column;
-	String content;
-	private String name;
-	private String location;
-	private String note;
-	private String lecturer;
+	String content=" ";
+	private String name=" ";
+	private String location=" ";
+	private String note=" ";
+	private String lecturer=" ";
 	
+
 	public Course(int row, int column, String content) {
 		this.row=row;
 		this.column=column;
@@ -19,6 +20,7 @@ public class Course extends Object{
 	public int getColumn() {
 		return column;
 	}
+	
 	/*Set or change the text in the editor*/
 	public void setContent(String content){
 		this.content=content;
@@ -54,6 +56,15 @@ public class Course extends Object{
 
 	public void setNote(String note) {
 		this.note = note;
+	}
+
+	public  String getContent() {
+		// TODO Auto-generated method stub
+		return content;
+	}
+
+	public int getRow() {
+		return row;
 	}
 
 }
