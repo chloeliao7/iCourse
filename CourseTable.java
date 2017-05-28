@@ -15,30 +15,24 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 public class CourseTable extends JFrame implements Runnable {
 	final JScrollPane scrollPane = new JScrollPane();
 	JTable table;
-	//creat a form
 	JButton save;
-	//creat a button
 	String[][] content = new String[5][7];
 	private PrintWriter writer;
 	private BufferedReader reader;
 	private Socket socket;
-	//set a socket
+	private int uID;
 
 	private void connect() {
 		try {
-			socket = new Socket("localhost", 1978);
-			// writer = new PrintWriter(socket.getOutputStream(), true);
-			//  get the socket output stream to write data
 			reader = new BufferedReader(new InputStreamReader(socket.getInputStream())); // 实例化BufferedReader对象
-			new Thread().start();
+			new Thread(this).start();
 		} catch (Exception e) {
-			e.printStackTrace();
-			/*The command line prints the location and reason
-			for the error message in the program*/
+			e.printStackTrace(); // 输出异常信息
 		}
 	}
 
@@ -46,56 +40,56 @@ public class CourseTable extends JFrame implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println("  1");
 		try {
-			while (isrun) { 
-				// 
+			while (isrun) { // 如果套接字是连接状态
 				while (reader != null) {
 					try {
-						int row = reader.read();
-						System.out.println(row + " ");
-						int col = reader.read();
-						String name = reader.readLine();
-						String room = reader.readLine();
-						String teacher = reader.readLine();
-						content[row][col] = name + " " + room + " " + teacher;
+						String tag = reader.readLine();
+						System.out.println(tag);
+						if (tag.equals("course")) {
+							receiveCourse();
+						}
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
-						/*The command line prints the location and reason
-						for the error message in the program*/
 					}
 				}
 				isrun = false;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			/*The command line prints the location and reason
-			for the error message in the program*/
 		} finally {
 			try {
 				if (reader != null) {
 					reader.close();
-					//close the reader
 				}
 				if (socket != null) {
 					socket.close();
-					//close the socket
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
-				/*The command line prints the location and reason
-				for the error message in the program*/
 			}
 		}
 	}
 
-	public static void main(String[] args) {
-		new CourseTable();
+	private void receiveCourse() {
+		try {
+			String courses = reader.readLine();
+			// separate infromation from server side
+			String[] courselist = courses.split("=");
+			for (int i = 1; i < courselist.length; i++) {
+				String[] course = courselist[i].split(":");
+				TableModel tableModel = table.getModel();
+				tableModel.setValueAt(course[3] + course[4] + course[5], Integer.parseInt(course[1]), Integer.parseInt(course[2]));
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
-	/*set the time and the date to class in the course table*/
-	public CourseTable() {
+	public CourseTable(Socket socket) {
+		this.socket = socket;
 		String[] time = { "8:00~9:30", "9:55~11:30", "13:30~15:00", "15:25~17:00", "19:00~20:30" };
 		for (int i = 0; i < 5; i++) {
 			content[i][0] = time[i];
@@ -107,20 +101,14 @@ public class CourseTable extends JFrame implements Runnable {
 		table = new JTable(tmd) {
 			public boolean isCellEditable(int row, int column) {
 				return false;
-				//Change each cell in the table into modifiable
 			}
 		};
 
 		scrollPane.setViewportView(table);
-		//Add scroll bar
 		setTitle("course");
-		//set the title to the table
 		setSize(800, 600);
-		//set the size 
 		setLocation(500, 200);
-		//set the location
 		scrollPane.setSize(320, 200);
-		//set the size of the scroll bar
 
 		DefaultTableCellRenderer r = new DefaultTableCellRenderer();
 		r.setHorizontalAlignment(JLabel.CENTER);
@@ -130,9 +118,7 @@ public class CourseTable extends JFrame implements Runnable {
 		scrollPane.setViewportView(table);
 		add(scrollPane);
 
-		/*add mouselistener to the table*/
 		table.addMouseListener(new MouseListener() {
-
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				// TODO Auto-generated method stub
@@ -159,19 +145,21 @@ public class CourseTable extends JFrame implements Runnable {
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				String instruction;
+				if (e.getSource().equals(null))
+					instruction = "insert";
+				else
+					instruction = "update";
+				System.out.println(instruction);
 				int row = table.getSelectedRow();
 				int column = table.getSelectedColumn();
-				new edit(row, column, 1);
+				new edit(socket, instruction, row, column, uID);// 接收user ID
 				dispose();
-				//realse the window
 			}
 		});
 
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		/*Automatically hide and release the form 
-		after calling any registered WindowListener object*/
 		this.setVisible(true);
-		//Sets the object of the this reference to be visible
 		connect();
 	}
 }
