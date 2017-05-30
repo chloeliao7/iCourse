@@ -15,20 +15,24 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-@SuppressWarnings("serial")
-public class Loging extends JFrame implements Runnable {
+public class Sign extends JFrame implements Runnable {
 
 	JLabel User;
 	JLabel PIN;
+	JLabel Ensure;
+	JLabel Email;
 	JButton Enter;
 	JButton Cancel;
 	JTextField name;
 	JTextField pin;
-	private PrintWriter writer; // 声明PrintWriter类对象
-	private BufferedReader reader; // 声明BufferedReader对象
-	private Socket socket; // 声明Socket对象
+	JTextField repin;
+	JTextField email;
+	private PrintWriter writer;
+	private BufferedReader reader;
+	private Socket socket;
 
-	private void connect() { // 连接套接字方法
+	private void connect() {
+
 		try {
 			socket = new Socket("localhost", 1978);
 			writer = new PrintWriter(socket.getOutputStream(), true);// 创建输出流对象
@@ -39,68 +43,62 @@ public class Loging extends JFrame implements Runnable {
 		}
 	}
 
-	boolean isrun = true;
-
-	@Override
-	public void run() {
-		try {
-			while (isrun) { // 如果套接字是连接状态
-				if (reader != null) {
-					String instruction = reader.readLine();
-					// 读取服务器发送的信息
-					if (instruction.matches("fail")) {
-						JOptionPane.showMessageDialog(null, "No this user or wrong pin, please sign in again!");
-						name.setText(" ");
-						pin.setText(" ");
-					}
-					if (instruction.matches("success")) {
-						JOptionPane.showMessageDialog(null, "Welcom back ");
-						new CourseTable(socket);
-						isrun = false;
-					}
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-		}
-	}
-
 	public static void main(String[] args) {
-		new Loging();
+		new Sign();
 	}
 
-	public Loging() {
+	public Sign() {
 		this.setSize(400, 500);
-		getContentPane().setLayout(null);
+		this.setLayout(null);
 		this.setLocation(new Point(600, 200));
 
-		User = new JLabel("User:");
+		User = new JLabel("User :");
 		User.setBounds(65, 100, 100, 30);
-		PIN = new JLabel("PIN:");
+		PIN = new JLabel("PIN :");
 		PIN.setBounds(65, 150, 100, 30);
+		Ensure = new JLabel("Ensure PIN :");
+		Ensure.setBounds(65, 200, 100, 30);
+		Email = new JLabel("Email :");
+		Email.setBounds(65, 250, 100, 30);
 		Enter = new JButton("Enter");
-		Enter.setBounds(225, 300, 80, 30);
+		Enter.setBounds(225, 350, 80, 30);
 		Cancel = new JButton("Cancel");
-		Cancel.setBounds(95, 300, 80, 30);
+		Cancel.setBounds(95, 350, 80, 30);
 
 		name = new JTextField();
-		name.setBounds(140, 100, 120, 30);
+		name.setBounds(150, 100, 120, 30);
 		pin = new JTextField();
-		pin.setBounds(140, 150, 120, 30);
+		pin.setBounds(150, 150, 120, 30);
+		repin = new JTextField();
+		repin.setBounds(150, 200, 120, 30);
+		email = new JTextField();
+		email.setBounds(140, 250, 150, 30);
 
-		getContentPane().add(User);
-		getContentPane().add(PIN);
-		getContentPane().add(Enter);
-		getContentPane().add(Cancel);
-		getContentPane().add(name);
-		getContentPane().add(pin);
+		this.add(User);
+		this.add(PIN);
+		this.add(Ensure);
+		this.add(Email);
+		this.add(Enter);
+		this.add(Cancel);
+		this.add(name);
+		this.add(pin);
+		this.add(repin);
+		this.add(email);
 
 		Enter.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
-				writer.println("Login");
-				writer.println(name.getText());
-				writer.println(pin.getText());
+				if (pin.getText().contentEquals(repin.getText())) {
+					writer.println("Signin");
+					writer.println(name.getText());
+					writer.println(pin.getText());
+					writer.println(email.getText());
+				} else {
+					JOptionPane.showMessageDialog(null, "The pin doesn't fit.Please sign up again.");
+					name.setText(" ");
+					pin.setText(" ");
+					repin.setText(" ");
+					email.setText(" ");
+				}
 			}
 		});
 		Cancel.addActionListener(new ActionListener() {
@@ -119,4 +117,39 @@ public class Loging extends JFrame implements Runnable {
 		connect();
 	}
 
+	boolean isrun = true;
+
+	@Override
+	public void run() {
+		try {
+			while (isrun) { // 如果套接字是连接状态
+				if (reader != null) {
+					String instruction = reader.readLine();
+					// 读取服务器发送的信息
+					if (instruction.matches("rename")) {
+						JOptionPane.showMessageDialog(null, "This name has exist,Please pick another name !");
+						name.setText(" ");
+						pin.setText(" ");
+						repin.setText(" ");
+						email.setText(" ");
+					}
+					if (instruction.matches("reemail")) {
+						JOptionPane.showMessageDialog(null, "This emailbox has been used !");
+						name.setText(" ");
+						pin.setText(" ");
+						repin.setText(" ");
+						email.setText(" ");
+					}
+					if (instruction.matches("success")) {
+						JOptionPane.showMessageDialog(null, "Congratuation! ");
+						new CourseTable(socket);
+						isrun = false;
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+		}
+	}
 }
