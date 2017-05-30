@@ -317,5 +317,4 @@ public class ServerSocketFrame extends JFrame {
 		label_1.setText("Server Side");
 		panel_1.add(label_1);
 	}
-
 }
