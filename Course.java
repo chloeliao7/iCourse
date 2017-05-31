@@ -1,27 +1,18 @@
-package version1;
+package Client;
 
-public class Course extends Object{
-	/*define some parameters*/
+public class Course extends Object {
 	private int row;
 	private int column;
-	String content;
-	private String name;
-	private String location;
-	private String note;
-	private String lecturer;
-	
-	public Course(int row, int column, String content) {
-		this.row=row;
-		this.column=column;
-		this.content=content;
-	}
+	private String name = " ";
+	private String location = " ";
+	private String lecturer = " ";
 
-	public int getColumn() {
-		return column;
-	}
-	/*Set or change the text in the editor*/
-	public void setContent(String content){
-		this.content=content;
+	public Course(int row, int column, String n, String l, String t) {
+		this.row = row;
+		this.column = column;
+		this.name = n;
+		this.location = l;
+		this.lecturer = t;
 	}
 
 	public String getName() {
@@ -48,12 +39,20 @@ public class Course extends Object{
 		this.location = location;
 	}
 
-	public String getNote() {
-		return note;
+	public int getRow() {
+		return row;
 	}
 
-	public void setNote(String note) {
-		this.note = note;
+	public void setRow(int r) {
+		this.row = r;
 	}
 
+	public int getColumn() {
+		return column;
+	}
+
+	public void setColumn(int c) {
+		this.column = c;
+	}
 }
+
