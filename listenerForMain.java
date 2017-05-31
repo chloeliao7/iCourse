@@ -1,4 +1,4 @@
-package Table;
+package Client;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
