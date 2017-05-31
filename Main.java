@@ -44,8 +44,7 @@ public class Main extends JFrame {
 		getContentPane().add(SignUp);
 		getContentPane().add(Course);
 		//add listener for the window
-		//add some scroll bars
-
+		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		/*Automatically hide and release the form 
 		after calling any registered WindowListener object*/
